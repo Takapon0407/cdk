@@ -371,6 +371,253 @@ exports[`Matches the snapshot cdkStack 1`] = `
     },
   },
   "Resources": {
+    "CdkCicdkCIProject56C493C5": {
+      "DependsOn": [
+        "GithubCredentialsgithubcredentialsDDFAB419",
+      ],
+      "Properties": {
+        "Artifacts": {
+          "Type": "NO_ARTIFACTS",
+        },
+        "BadgeEnabled": true,
+        "Cache": {
+          "Type": "NO_CACHE",
+        },
+        "EncryptionKey": "alias/aws/s3",
+        "Environment": {
+          "ComputeType": "BUILD_GENERAL1_SMALL",
+          "EnvironmentVariables": [
+            {
+              "Name": "TZ",
+              "Type": "PLAINTEXT",
+              "Value": "Asia/Tokyo",
+            },
+            {
+              "Name": "NODE_VERSION",
+              "Type": "PLAINTEXT",
+              "Value": "22",
+            },
+          ],
+          "Image": "aws/codebuild/standard:7.0",
+          "ImagePullCredentialsType": "CODEBUILD",
+          "PrivilegedMode": false,
+          "Type": "LINUX_CONTAINER",
+        },
+        "LogsConfig": {
+          "CloudWatchLogs": {
+            "GroupName": {
+              "Ref": "CdkCicdkcilogB8400E3F",
+            },
+            "Status": "ENABLED",
+          },
+        },
+        "QueuedTimeoutInMinutes": 60,
+        "ServiceRole": {
+          "Fn::GetAtt": [
+            "CdkCicdkCIProjectRole90A1D54E",
+            "Arn",
+          ],
+        },
+        "Source": {
+          "BuildSpec": "{
+  "version": "0.2",
+  "phases": {
+    "install": {
+      "commands": [
+        "echo n version is $(n -V)",
+        "n \\"$NODE_VERSION\\"",
+        "n exec \\"$NODE_VERSION\\" npm ci"
+      ]
+    },
+    "build": {
+      "commands": [
+        "n exec \\"$NODE_VERSION\\" npm run format-check",
+        "n exec \\"$NODE_VERSION\\" npm run lint-check",
+        "n exec \\"$NODE_VERSION\\" npm run test"
+      ]
+    }
+  }
+}",
+          "Location": "https://github.com/Takapon0407/cdk.git",
+          "ReportBuildStatus": true,
+          "Type": "GITHUB",
+        },
+        "TimeoutInMinutes": 30,
+        "Triggers": {
+          "FilterGroups": [
+            [
+              {
+                "Pattern": "PULL_REQUEST_CREATED",
+                "Type": "EVENT",
+              },
+            ],
+            [
+              {
+                "Pattern": "PULL_REQUEST_UPDATED",
+                "Type": "EVENT",
+              },
+            ],
+            [
+              {
+                "Pattern": "PULL_REQUEST_REOPENED",
+                "Type": "EVENT",
+              },
+            ],
+            [
+              {
+                "Pattern": "PUSH",
+                "Type": "EVENT",
+              },
+              {
+                "Pattern": "refs/heads/main",
+                "Type": "HEAD_REF",
+              },
+            ],
+          ],
+          "Webhook": true,
+        },
+      },
+      "Type": "AWS::CodeBuild::Project",
+    },
+    "CdkCicdkCIProjectRole90A1D54E": {
+      "DependsOn": [
+        "GithubCredentialsgithubcredentialsDDFAB419",
+      ],
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "codebuild.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "CdkCicdkCIProjectRoleDefaultPolicy9A6FCA49": {
+      "DependsOn": [
+        "GithubCredentialsgithubcredentialsDDFAB419",
+      ],
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "CdkCicdkcilogB8400E3F",
+                  "Arn",
+                ],
+              },
+            },
+            {
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:ap-northeast-1:945611748417:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CdkCicdkCIProject56C493C5",
+                      },
+                    ],
+                  ],
+                },
+                {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "arn:",
+                      {
+                        "Ref": "AWS::Partition",
+                      },
+                      ":logs:ap-northeast-1:945611748417:log-group:/aws/codebuild/",
+                      {
+                        "Ref": "CdkCicdkCIProject56C493C5",
+                      },
+                      ":*",
+                    ],
+                  ],
+                },
+              ],
+            },
+            {
+              "Action": [
+                "codebuild:CreateReportGroup",
+                "codebuild:CreateReport",
+                "codebuild:UpdateReport",
+                "codebuild:BatchPutTestCases",
+                "codebuild:BatchPutCodeCoverages",
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition",
+                    },
+                    ":codebuild:ap-northeast-1:945611748417:report-group/",
+                    {
+                      "Ref": "CdkCicdkCIProject56C493C5",
+                    },
+                    "-*",
+                  ],
+                ],
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "CdkCicdkCIProjectRoleDefaultPolicy9A6FCA49",
+        "Roles": [
+          {
+            "Ref": "CdkCicdkCIProjectRole90A1D54E",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
+    "CdkCicdkcilogB8400E3F": {
+      "DeletionPolicy": "Delete",
+      "DependsOn": [
+        "GithubCredentialsgithubcredentialsDDFAB419",
+      ],
+      "Properties": {
+        "LogGroupName": "/cdk/ci",
+        "RetentionInDays": 7,
+      },
+      "Type": "AWS::Logs::LogGroup",
+      "UpdateReplacePolicy": "Delete",
+    },
+    "GithubCredentialsgithubcredentialsDDFAB419": {
+      "Properties": {
+        "AuthType": "PERSONAL_ACCESS_TOKEN",
+        "ServerType": "GITHUB",
+        "Token": "{{resolve:secretsmanager:github/ci:SecretString:token::}}",
+      },
+      "Type": "AWS::CodeBuild::SourceCredential",
+    },
     "cdkcdkpipelineAssetsFileAsset17D907B67": {
       "Properties": {
         "Artifacts": {
