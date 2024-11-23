@@ -12,14 +12,14 @@ test(`Matches the snapshot cdkStack`, () => {
           account: "945611748417",
           region: "ap-northeast-1",
         },
-      })
-    ).toJSON()
+      }),
+    ).toJSON(),
   ).toMatchSnapshot();
 });
 
 test(`Matches the snapshot appStack`, () => {
   const app = new cdk.App();
   expect(
-    Template.fromStack(new AppStack(app, "AppStack")).toJSON()
+    Template.fromStack(new AppStack(app, "AppStack")).toJSON(),
   ).toMatchSnapshot();
 });
