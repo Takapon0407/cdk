@@ -1,17 +1,17 @@
-import { Construct } from "constructs";
+import { Construct } from 'constructs';
 import {
   Duration,
   RemovalPolicy,
   aws_codebuild as codebuild,
-} from "aws-cdk-lib";
-import { LogGroup, RetentionDays } from "aws-cdk-lib/aws-logs";
+} from 'aws-cdk-lib';
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
 
 export class CdkCi extends Construct {
   constructor(scope: Construct, id: string) {
     super(scope, id);
     const source = codebuild.Source.gitHub({
-      owner: "Takapon0407",
-      repo: "cdk",
+      owner: 'Takapon0407',
+      repo: 'cdk',
       webhookFilters: [
         codebuild.FilterGroup.inEventOf(
           codebuild.EventAction.PULL_REQUEST_CREATED,
@@ -23,26 +23,26 @@ export class CdkCi extends Construct {
           codebuild.EventAction.PULL_REQUEST_REOPENED,
         ),
         codebuild.FilterGroup.inEventOf(codebuild.EventAction.PUSH).andBranchIs(
-          "main",
+          'main',
         ),
       ],
     });
-    const logGroup = new LogGroup(this, "cdk-ci-log", {
-      logGroupName: "/cdk/ci",
+    const logGroup = new LogGroup(this, 'cdk-ci-log', {
+      logGroupName: '/cdk/ci',
       retention: RetentionDays.ONE_WEEK,
     });
     logGroup.applyRemovalPolicy(RemovalPolicy.DESTROY);
 
     const nCommand = 'n exec "$NODE_VERSION"';
-    new codebuild.Project(this, "cdkCIProject", {
+    new codebuild.Project(this, 'cdkCIProject', {
       source,
       badge: true,
       buildSpec: codebuild.BuildSpec.fromObject({
-        version: "0.2",
+        version: '0.2',
         phases: {
           install: {
             commands: [
-              "echo n version is $(n -V)",
+              'echo n version is $(n -V)',
               'n "$NODE_VERSION"',
               `${nCommand} npm ci`,
             ],
@@ -58,10 +58,10 @@ export class CdkCi extends Construct {
       }),
       environmentVariables: {
         TZ: {
-          value: "Asia/Tokyo",
+          value: 'Asia/Tokyo',
         },
         NODE_VERSION: {
-          value: "22",
+          value: '22',
         },
       },
       timeout: Duration.minutes(30),
